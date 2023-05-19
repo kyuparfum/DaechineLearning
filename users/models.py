@@ -3,20 +3,23 @@
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.db import models
 
+
 class CommonModel(models.Model):
     db_status_choice = [
-        (1, 'active'), 
+        (1, 'active'),
         (2, 'delete'),
     ]
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    db_status = models.PositiveIntegerField(choices=db_status_choice, default=1)
-    
+    db_status = models.PositiveIntegerField(
+        choices=db_status_choice, default=1)
+
     class Meta:
         abstract = True
         # class Meta 를 선언함으로써, 다른 모델들이 상속 받을수 있는 모델이 됨
 
 # custom user model 사용 시 UserManager 클래스와 create_user, create_superuser 함수가 정의되어 있어야 함
+
 
 class UserManager(BaseUserManager):
     def create_user(self, email, username, password=None):
@@ -30,8 +33,8 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
-
     # python manage.py createsuperuser 사용 시 해당 함수가 사용됨
+
     def create_superuser(self, email, username, password=None):
         user = self.create_user(
             email,
@@ -47,17 +50,15 @@ class User(AbstractBaseUser):
     # User Email (Required)
     email = models.EmailField("email", max_length=256, unique=True)
     # User Username
-    username = models.CharField(
-        "username", max_length=20, blank=True, null=True)
+    username = models.CharField("username", max_length=20, unique=True)
     # User Password (Required)
     password = models.CharField("Password", max_length=256)
-
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = 'username'
 
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['email',]
 
     objects = UserManager()  # Necessary when creating custom user
 
