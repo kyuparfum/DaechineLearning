@@ -72,6 +72,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'dlproject.wsgi.application'
+AUTH_USER_MODEL = 'users.User' # django.contrib.auth.models.User(상속, 커스텀)
 
 
 # Database
