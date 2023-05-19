@@ -10,7 +10,7 @@ class CommonModel(models.Model):
     ]
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    db_status = models.PositiveIntegerField(max_length=1, choices=db_status_choice, default=1)
+    db_status = models.PositiveIntegerField(choices=db_status_choice, default=1)
     
     class Meta:
         abstract = True

@@ -4,7 +4,7 @@
 #migrations
 my_settings.py
 **/migrations/**.py
-!**/migrations/_init_.py
+!**/migrations/__init__.py
 ### Django ###
 *.log
 *.pot

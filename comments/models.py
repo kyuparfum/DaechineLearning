@@ -8,4 +8,4 @@ class Comment(CommonModel):
     comment = models.TextField("댓글")
 
     def __str__(self):
-        return self.content
+        return self.comment
