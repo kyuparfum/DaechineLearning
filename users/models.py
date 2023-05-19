@@ -38,7 +38,7 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, username, password=None):
         user = self.create_user(
             email,
-            username=username,
+            username,
             password=password
         )
         user.is_admin = True
