@@ -5,16 +5,6 @@ from articles.models import Article
 
 # Create your models here.
 
-# 댓글 모델
-class Comment(CommonModel):
-    writer = models.ForeignKey(User, on_delete=models.CASCADE)
-    music = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="comments")
-    comment = models.TextField("댓글 내용")
-    use_emoticon = models.TextField("댓글 이모티콘", blank=True)
-
-    def __str__(self):
-        return self.comment
-
 # 이모티콘 모델
 class Emoticon(CommonModel):
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)                   # User 삭제시 이모티콘은 유지
@@ -36,3 +26,13 @@ class EmoticonImages(CommonModel):
 class UserBoughtEmoticon(CommonModel):
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='emoticon_list')
     emoticon = models.ForeignKey(Emoticon, on_delete=models.CASCADE, related_name='sold_emoticon')
+
+# 댓글 모델
+class Comment(CommonModel):
+    writer = models.ForeignKey(User, on_delete=models.CASCADE)
+    music = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="comments")
+    comment = models.TextField("댓글 내용")
+    use_emoticon = models.ForeignKey(EmoticonImages, on_delete=models.SET_NULL, blank=True, null=True)
+
+    def __str__(self):
+        return self.comment

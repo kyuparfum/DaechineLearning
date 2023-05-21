@@ -12,7 +12,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class EmoticonImagesSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmoticonImages
-        fields = ("image",)
+        fields = ("id", "image",)
 
 # 이모티콘
 class EmoticonSerializer(serializers.ModelSerializer):
