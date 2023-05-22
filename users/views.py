@@ -24,16 +24,13 @@ class Userview(APIView):
         
         # 로그인되어있다면
         user = User.objects.get(id=request.user.id)
-        serializer = Userserializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            user = request.user # 요청받은 유저를 본래 유저로 넣고
-            user.set_password(serializer.validated_data.get('password')) 
-            user.username = serializer.validated_data.get('username')    
-            user.save() # 저장    
+        user_serializer = Userserializer(user, data=request.data, partial=True)
+        if user_serializer.is_valid(raise_exception=True):
+            user_serializer.save() # 저장    
             return Response({'message': '회원정보가 수정완료되었습니다!'}, status=status.HTTP_200_OK)
         
         else:
-            return Response({"message":f"${serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message":f"${user_serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST)
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer

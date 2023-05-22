@@ -17,14 +17,28 @@ class Userserializer(serializers.ModelSerializer):
         password = user.password
         user.set_password(password)
         user.save()
+        print(f'validated_data : {validated_data}')
         return user
 
 # 유저 정보수정 시리얼라이저
     def update(self, obj, validated_data):
         # obj.email = validated_data.get('email', obj.email)
-        obj.username = validated_data.get('username', obj.username)
-        obj.password = validated_data.get('password', obj.password)
+        # obj.username = validated_data.get('username', obj.username)
+        # obj.password = validated_data.get('password', obj.password)
+        # obj.save()
+        print(f'obj : {obj}')
+        print(f'validated_data : {validated_data}')
+        
+        # instance에는 입력된 object가 담긴다.
+        for key, value in validated_data.items():
+            print(key, value)
+            if key == "password":
+                obj.set_password(value)
+                continue
+            
+            setattr(obj, key, value)
         obj.save()
+        
         return obj
 
 # 토큰 정보 커스터마이징
