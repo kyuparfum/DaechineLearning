@@ -15,25 +15,3 @@ class Article(CommonModel):
 
     def __str__(self):
         return self.title
-
-    # 음악-Music모델 Article 상속
-    # music = models.ForeignKey(Music, on_delete=models.CASCADE)
-
-
-# class Music(Article):
-
-#     GENRES = [
-#         ('rock', 'rock'),
-#         ('pop', 'pop'),
-#         ('jazz', 'jazz'),
-#         ('classical', 'classical'),
-#         ('other', 'other'),
-#     ]
-
-#     genre = models.CharField("Genre", choices=GENRES,
-#                              max_length=20, default=None)
-#     singer = models.CharField("Singer", max_length=20, unique=True)
-#     lyrics = models.TextField("Lyrics", max_length=20, unique=True)
-#     lyrics_writer = models.CharField(
-#         "Lyrics Writer", max_length=20, unique=True)
-#     song_writer = models.CharField("Song Writer", max_length=20, unique=True)
