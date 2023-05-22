@@ -63,7 +63,7 @@ class User(AbstractBaseUser):
     objects = UserManager()  # Necessary when creating custom user
 
     def __str__(self):
-        return f"{self.email}"
+        return f"{self.username}"
 
     def has_perm(self, perm, obj=None):
         return True
