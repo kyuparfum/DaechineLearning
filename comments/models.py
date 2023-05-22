@@ -7,7 +7,7 @@ from articles.models import Article
 # 댓글 모델
 class Comment(CommonModel):
     writer = models.ForeignKey(User, on_delete=models.CASCADE)
-    music = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="comments")
+    # music = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="comments")
     comment = models.TextField("댓글")
 
     def __str__(self):
