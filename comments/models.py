@@ -4,14 +4,6 @@ from users.models import User
 from articles.models import Article
 
 # Create your models here.
-# 댓글 모델
-class Comment(CommonModel):
-    writer = models.ForeignKey(User, on_delete=models.CASCADE)
-    # music = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="comments")
-    comment = models.TextField("댓글")
-
-    def __str__(self):
-        return self.comment
 
 # 이모티콘 모델
 class Emoticon(CommonModel):
@@ -29,3 +21,18 @@ class EmoticonImages(CommonModel):
 
     def __str__(self):
         return self.emoticon.title
+
+# 이모티콘 구매자 테이블?
+class UserBoughtEmoticon(CommonModel):
+    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='emoticon_list')
+    emoticon = models.ForeignKey(Emoticon, on_delete=models.CASCADE, related_name='sold_emoticon')
+
+# 댓글 모델
+class Comment(CommonModel):
+    writer = models.ForeignKey(User, on_delete=models.CASCADE)
+    music = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="comments")
+    comment = models.TextField("댓글 내용")
+    use_emoticon = models.ForeignKey(EmoticonImages, on_delete=models.SET_NULL, blank=True, null=True)
+
+    def __str__(self):
+        return self.comment
