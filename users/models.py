@@ -39,7 +39,7 @@ class UserManager(BaseUserManager):
         user = self.create_user(
             email,
             username,
-            password=password
+            password,
         )
         user.is_admin = True
         user.save(using=self._db)
@@ -47,18 +47,18 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
-    # User Email (Required)
-    email = models.EmailField("email", max_length=256, unique=True)
-    # User Username
-    username = models.CharField("username", max_length=20, unique=True)
-    # User Password (Required)
+    # User Email (Required and Unique for signup)
+    email = models.EmailField("Email", max_length=256, unique=True)
+    # User Username (Required and Unique for signin)
+    username = models.CharField("Username", max_length=20, unique=True)
+    # User Password
     password = models.CharField("Password", max_length=256)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
 
-    REQUIRED_FIELDS = ['email',]
+    REQUIRED_FIELDS = ['email']
 
     objects = UserManager()  # Necessary when creating custom user
 
