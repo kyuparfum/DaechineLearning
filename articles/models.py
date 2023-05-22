@@ -4,12 +4,14 @@ from users.models import CommonModel, User
 
 
 class Article(CommonModel):
-    # 작성자-User모델
-    writer = models.ForeignKey(User, on_delete=models.CASCADE)  #related_name 필요할까요?
-    # 음악-Music모델
-    # music = models.ForeignKey(Music, on_delete=models.CASCADE)
-    content = models.TextField("후기")
-    
+    # CommonModel 상속으로 데이터 생성일시는 명시할 필요 없음.
+    writer = models.ForeignKey(
+        User, on_delete=models.CASCADE)  # related_name 필요할까요?
+    title = models.CharField("Title", max_length=50)
+    content = models.TextField("Review or something")
+    image = models.ImageField("Image", blank=True, upload_to='image/')
+    media = models.FileField("Media", blank=True, upload_to='media/')
+    sound = models.FileField("Sound", blank=True, upload_to='music/')
 
-    # def __str__(self):
-    #     return self.music
+    def __str__(self):
+        return self.title

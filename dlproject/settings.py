@@ -77,7 +77,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'dlproject.wsgi.application'
-AUTH_USER_MODEL = 'users.User' # django.contrib.auth.models.User(상속, 커스텀)
+AUTH_USER_MODEL = 'users.User'  # django.contrib.auth.models.User(상속, 커스텀)
 
 
 # Database
@@ -128,8 +128,14 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "static"
 
-MEDIA_URL = "media/"
+MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / "media"
+
+MUSIC_URL = 'music/'
+MUSIC_ROOT = BASE_DIR / "music"
+
+IMAGE_URL = 'image/'
+MUSIC_ROOT = BASE_DIR / "image"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
