@@ -10,5 +10,5 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),   #토큰만료시 다시 갱신
     path('signup/', views.Userview.as_view()),  #회원가입
     path('mock/', views.mockview.as_view()),    #토큰유효확인
-    path('profile/', views.Userview.as_view(), name='profile_edit'),
+    path('profile/', views.Userview.as_view(), name='profile_edit'),    #회원정보 수정
 ]
