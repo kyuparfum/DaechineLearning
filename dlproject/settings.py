@@ -38,22 +38,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # site 설정도!
-    'django.contrib.sites',
+    # site 설정
+    # 'django.contrib.sites',
     
     'rest_framework',
     'rest_framework_simplejwt',
-    'rest_framework.authtoken',
+    # 'rest_framework.authtoken',
     'corsheaders',
     
     # 소셜, 이메일인증 라이브러리
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
+    # 'dj_rest_auth',
+    # 'dj_rest_auth.registration',
 
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',   #구글 소셜로그인
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.google',   #구글 소셜로그인
 
     'users',
     'articles',
@@ -212,7 +212,8 @@ SITE_ID = 1 #사이트 아이디 기본값
 # ACCOUNT_EMAIL_REQUIRED = True            # email 필드 필수-이메일 인증
 # ACCOUNT_USERNAME_REQUIRED = True        # username 필드 필수-로그인시
 # ACCOUNT_AUTHENTICATION_METHOD = 'username'
-# ACCOUNT_EMAIL_VERIFICATION = 'mandatory'    #메일 주소를 인증하지 않으면 회원가입하더라도 로그인할 수 없다
+# ACCOUNT_EMAIL_VERIFICATION = 'None'    #메일 주소를 인증하지 않으면 회원가입하더라도 로그인할 수 없다
+# ACCOUNT_CONFIRM_EMAIL_ON_GET = True # 유저가 받은 링크를 클릭하면 회원가입 완료되게끔
 
 EMAIL_BACKEND = my_settings.EMAIL['EMAIL_BACKEND']
 EMAIL_USE_TLS = my_settings.EMAIL['EMAIL_USE_TLS']

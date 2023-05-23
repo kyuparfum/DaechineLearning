@@ -23,7 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
     # allauath
-    path('api/user/', include('allauth.urls')),
+    # path('api/user/', include('allauth.urls')),
     path('articles/', include('articles.urls')),
     path('comments/', include('comments.urls')),
 ]
