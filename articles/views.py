@@ -1,33 +1,92 @@
+import base64
 from django.shortcuts import render
 import requests
 from rest_framework.views import APIView
+from rest_framework.response import Response
 from django.http import JsonResponse
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import my_settings
+from apscheduler.schedulers.background import BackgroundScheduler
+
+# 스케줄러 객체 생성
 client_credentials_manager = SpotifyClientCredentials(
     client_id=my_settings.SPOTYPY_KEY["music_id"], client_secret=my_settings.SPOTYPY_KEY["music_pw"])
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-bearer_token = my_settings.SPOTYPY_KEY["bearer_token"]
+client_id = my_settings.SPOTYPY_KEY["music_id"]
+client_pw = my_settings.SPOTYPY_KEY["music_pw"]
+access_token = ""
+scheduler = BackgroundScheduler()
 # Create your views here.
 
-class MusicGenreApiDetail(APIView):
+class GetMusicAccessToken(APIView):
+    def post(self, request, format=None):
+        auth_url = 'https://accounts.spotify.com/api/token'
+        
+        message = f"{client_id}:{client_pw}"
+        message_bytes = message.encode('ascii') 
+        base64_bytes = base64.b64encode(message_bytes) 
+        base64_message = base64_bytes.decode('ascii')
+        
+        header = {'Authorization': f"Basic {base64_message}"}
+        data = {'grant_type': 'client_credentials'}
+        res = requests.post(auth_url, headers=header, data=data)
+        response_object = res.json()
+        access_token = response_object['access_token']
+        
+        my_settings.SPOTYPY_KEY["bearer_token"] = access_token
+        return Response({'access_token': access_token})
+
+def get_token():
+    auth_url = 'https://accounts.spotify.com/api/token'
+    message = f"{client_id}:{client_pw}"
+    message_bytes = message.encode('ascii') 
+    base64_bytes = base64.b64encode(message_bytes) 
+    base64_message = base64_bytes.decode('ascii')
+    header = {'Authorization': f"Basic {base64_message}"}
+    data = {'grant_type': 'client_credentials'}
+    res = requests.post(auth_url, headers=header, data=data)
+    response_object = res.json()
+    access_token = response_object['access_token']
+    return access_token
+# 스케줄링 함수 등록
+scheduler.add_job(get_token, 'interval', minutes=50)
+# 스케줄링 시작
+scheduler.start()
+
+class MusicGenreApiDetail(APIView):# 음악장르 전체목록 조회
     def get(self, request):
+        access_token=get_token()
         url = f"https://api.spotify.com/v1/recommendations/available-genre-seeds"
         headers = {
             "accept": "application/json",
-            "Authorization": f"Bearer {bearer_token}",
+            "Authorization": f"Bearer {access_token}",
+        }
+        print("------------")
+        print(access_token)
+        print("------------")
+        response = requests.get(url, headers=headers)
+        data = response.json()
+        return JsonResponse(data, safe=False)
+    
+class MusicSearchApiDetail(APIView):# 검색 api 작업중 10:48
+    def get(self, request):
+        url = f"https://api.spotify.com/v1/search?q=remaster%2520track%3ADoxy%2520artist%3AMiles%2520Davis&type=album&market=KR'"
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Bearer {access_token}",
         }
         response = requests.get(url, headers=headers)
         data = response.json()
         return JsonResponse(data, safe=False)
 
 
-class MusicApiDetail(APIView):
+
+class MusicApiDetail(APIView):# 음악 api2023년 리스트 인기도순으로 정렬
     def get(self, request):
         track_info = [] 
-        for i in range(0, 100, 10):
-            track_results = sp.search(q='year:2023', type='track', limit=10, offset=i)
+        for i in range(0, 1000, 50):
+            track_results = sp.search(q='year:2023', type='track', limit=50, offset=i)
             for idx, t in enumerate(sorted(track_results['tracks']['items'], key=lambda x: x['popularity'], reverse=True), start=i+1):
                 try:
                     album_data = {
