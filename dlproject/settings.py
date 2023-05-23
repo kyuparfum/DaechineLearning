@@ -38,9 +38,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # site 설정도!
+    'django.contrib.sites',
+    
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework.authtoken',
     'corsheaders',
+    
+    # 소셜, 이메일인증 라이브러리
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',   #구글 소셜로그인
 
     'users',
     'articles',
@@ -189,3 +202,21 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+# 이메일 인증
+
+REST_USE_JWT = True #SocialLoginView 사용시 필요
+
+SITE_ID = 1 #사이트 아이디 기본값
+
+# ACCOUNT_EMAIL_REQUIRED = True            # email 필드 필수-이메일 인증
+# ACCOUNT_USERNAME_REQUIRED = True        # username 필드 필수-로그인시
+# ACCOUNT_AUTHENTICATION_METHOD = 'username'
+# ACCOUNT_EMAIL_VERIFICATION = 'mandatory'    #메일 주소를 인증하지 않으면 회원가입하더라도 로그인할 수 없다
+
+EMAIL_BACKEND = my_settings.EMAIL['EMAIL_BACKEND']
+EMAIL_USE_TLS = my_settings.EMAIL['EMAIL_USE_TLS']
+EMAIL_PORT = my_settings.EMAIL['EMAIL_PORT']
+EMAIL_HOST = my_settings.EMAIL['EMAIL_HOST']
+EMAIL_HOST_USER = my_settings.EMAIL['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = my_settings.EMAIL['EMAIL_HOST_PASSWORD']
