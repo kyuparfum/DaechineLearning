@@ -31,7 +31,7 @@ class UserBoughtEmoticon(CommonModel):
 class Comment(CommonModel):
     writer = models.ForeignKey(User, on_delete=models.CASCADE)
     music = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="comments")
-    comment = models.TextField("댓글 내용")
+    comment = models.TextField("댓글 내용", blank=True)
     use_emoticon = models.ForeignKey(EmoticonImages, on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
