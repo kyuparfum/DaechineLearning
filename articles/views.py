@@ -51,7 +51,7 @@ def get_token():
     access_token = response_object['access_token']
 # 스케줄링 함수 등록
 get_token()
-scheduler.add_job(get_token, 'interval', seconds=10)
+scheduler.add_job(get_token, 'interval', minutes=59)
 # 스케줄링 시작
 scheduler.start()
 
