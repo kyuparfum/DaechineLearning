@@ -15,7 +15,7 @@ client_credentials_manager = SpotifyClientCredentials(
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 client_id = my_settings.SPOTYPY_KEY["music_id"]
 client_pw = my_settings.SPOTYPY_KEY["music_pw"]
-access_token = {}
+access_token = ""
 scheduler = BackgroundScheduler()
 # Create your views here.
 
