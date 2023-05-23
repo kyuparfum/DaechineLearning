@@ -3,6 +3,9 @@ from django.shortcuts import render
 import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.exceptions import ParseError
+from .serializers import MusicSerializer
 from django.http import JsonResponse
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -66,17 +69,30 @@ class MusicGenreApiDetail(APIView):# 음악장르 전체목록 조회
         data = response.json()
         return JsonResponse(data, safe=False)
 
-class MusicSearchApiDetail(APIView):# 검색 api 작업중 10:48
-    def get(self, request):
-        url = f"https://api.spotify.com/v1/search?q=remaster%2520track%3ADoxy%2520artist%3AMiles%2520Davis&type=album&market=KR'"
-        headers = {
-            "accept": "application/json",
-            "Authorization": f"Bearer {access_token}",
-        }
-        response = requests.get(url, headers=headers)
-        data = response.json()
-        return JsonResponse(data, safe=False)
+class MusicSearchApiDetail(APIView):
+    def post(self, request, format=None):
+        query = request.data.get('query', None)
+        limit = request.data.get('limit', 10)
+        search_type = request.data.get('type', 'track')
+        
+        if not access_token:
+            get_token()
 
+        if not query:
+            raise ParseError('검색어를 입력해주세요')
+        
+        search_url = f'https://api.spotify.com/v1/search?q={query}&type={search_type}&limit={limit}'
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+        }
+        response = requests.get(search_url, headers=headers)
+
+        if response.status_code == 200:
+            tracks = response.json().get('tracks', {}).get('items', [])
+            serializer = MusicSerializer(tracks, many=True)
+            return Response(serializer.data)
+        else:
+            return Response({'message': '트랙을 불러 올 수 없습니다.'}, status=response.status_code)
 
 
 class MusicApiDetail(APIView):# 음악 api2023년 리스트 인기도순으로 정렬
