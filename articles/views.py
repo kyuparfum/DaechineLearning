@@ -48,9 +48,10 @@ def get_token():
     res = requests.post(auth_url, headers=header, data=data)
     response_object = res.json()
     access_token = response_object['access_token']
+    print(access_token)
     return access_token
 # 스케줄링 함수 등록
-scheduler.add_job(get_token, 'interval', minutes=50)
+scheduler.add_job(get_token, 'interval', minutes=59)
 # 스케줄링 시작
 scheduler.start()
 
@@ -62,13 +63,10 @@ class MusicGenreApiDetail(APIView):# 음악장르 전체목록 조회
             "accept": "application/json",
             "Authorization": f"Bearer {access_token}",
         }
-        print("------------")
-        print(access_token)
-        print("------------")
         response = requests.get(url, headers=headers)
         data = response.json()
         return JsonResponse(data, safe=False)
-    
+
 class MusicSearchApiDetail(APIView):# 검색 api 작업중 10:48
     def get(self, request):
         url = f"https://api.spotify.com/v1/search?q=remaster%2520track%3ADoxy%2520artist%3AMiles%2520Davis&type=album&market=KR'"
