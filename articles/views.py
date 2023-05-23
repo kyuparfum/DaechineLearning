@@ -57,8 +57,6 @@ scheduler.start()
 
 class MusicGenreApiDetail(APIView):# 음악장르 전체목록 조회
     def get(self, request):
-
-        print(access_token)
         url = f"https://api.spotify.com/v1/recommendations/available-genre-seeds"
         headers = {
             "accept": "application/json",
