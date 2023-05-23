@@ -38,6 +38,7 @@ class GetMusicAccessToken(APIView):
         return Response({'access_token': access_token})
 
 def get_token():
+    global access_token
     auth_url = 'https://accounts.spotify.com/api/token'
     message = f"{client_id}:{client_pw}"
     message_bytes = message.encode('ascii') 
@@ -48,16 +49,14 @@ def get_token():
     res = requests.post(auth_url, headers=header, data=data)
     response_object = res.json()
     access_token = response_object['access_token']
-    print(access_token)
-    return access_token
 # 스케줄링 함수 등록
+get_token()
 scheduler.add_job(get_token, 'interval', minutes=59)
 # 스케줄링 시작
 scheduler.start()
 
 class MusicGenreApiDetail(APIView):# 음악장르 전체목록 조회
     def get(self, request):
-        access_token=get_token()
         url = f"https://api.spotify.com/v1/recommendations/available-genre-seeds"
         headers = {
             "accept": "application/json",
