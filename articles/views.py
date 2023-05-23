@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ParseError
-from .serializers import MusicSerializer
+from .serializers import MusicSerializer, ArtistSerializer
 from django.http import JsonResponse
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -71,10 +71,10 @@ class MusicGenreApiDetail(APIView):# 음악장르 전체목록 조회
 
 class MusicSearchApiDetail(APIView):
     def post(self, request, format=None):
-        query = request.data.get('query', None)
-        limit = request.data.get('limit', 10)
-        search_type = request.data.get('type', 'track')
-        
+        query = request.data.get('query', None)# 검색어는 필수로 작성해야 함.
+        limit = request.data.get('limit', 10)#기본값은 10이라 하고 작성 가능하게 만들 예정
+        search_type = request.data.get('type', 'track') # 앨범으로도 검색 가능한데 이건 트랙으로 해둬도 될 거 같습니다.
+
         if not access_token:
             get_token()
 
@@ -88,9 +88,28 @@ class MusicSearchApiDetail(APIView):
         response = requests.get(search_url, headers=headers)
 
         if response.status_code == 200:
-            tracks = response.json().get('tracks', {}).get('items', [])
-            serializer = MusicSerializer(tracks, many=True)
-            return Response(serializer.data)
+            data = response.json()
+            tracks = data.get('tracks', {}).get('items', [])
+            artists = data.get('artists', {}).get('items', [])
+            tracks_serializer = MusicSerializer(tracks, many=True)
+            artists_serializer = ArtistSerializer(artists, many=True)
+            
+            for artist in artists:
+                artist_id = artist.get('id')
+                artist_url = f'https://api.spotify.com/v1/artists/{artist_id}'
+                artist_headers = {
+                    'Authorization': f'Bearer {access_token}',
+                }
+                artist_response = requests.get(artist_url, headers=artist_headers)
+                
+                if artist_response.status_code == 200:
+                    artist_data = artist_response.json()
+                    artist['images'] = artist_data.get('images', [])
+            
+            return Response({
+                'tracks': tracks_serializer.data,
+                'artists': artists_serializer.data,
+            })
         else:
             return Response({'message': '트랙을 불러 올 수 없습니다.'}, status=response.status_code)
 
