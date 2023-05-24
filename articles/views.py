@@ -18,7 +18,6 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import my_settings
 from apscheduler.schedulers.background import BackgroundScheduler
-import json
 
 # 스케줄러 객체 생성
 client_credentials_manager = SpotifyClientCredentials(
