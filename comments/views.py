@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, permissions
 from comments.serializers import CommentSerializer, CommentCreateSerializer,\
-EmoticonSerializer, EmoticonImagesSerializer
+EmoticonSerializer, EmoticonImagesSerializer, EmoticonCreateSerializer
 from comments.models import Comment, Emoticon, EmoticonImages, UserBoughtEmoticon
 
 
@@ -21,7 +21,6 @@ class CommentView(APIView):
 
     # 댓글 생성
     def post(self, request, article_id):
-        print(request.data)
         serializer = CommentCreateSerializer(data=request.data)
         if serializer.is_valid():
             # serializer.save(writer=request.user, music=article_id)
@@ -55,14 +54,23 @@ class CommentView(APIView):
         else:
             return Response({"message": "권한이 없습니다!"}, status=status.HTTP_403_FORBIDDEN)
 
-# 이모티콘 전부 다 가져오기
+# 이모티콘
 class EmoticonView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    # 이모티콘 전부 다 가져오기
     def get(self, request):
         emoticon = Emoticon.objects.all()
         serializer = EmoticonSerializer(emoticon, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    # 이모티콘 제작
+    def post(self, request):
+        serializer = EmoticonCreateSerializer(data=request.data, context={"images":request.data.getlist("images")})
+        if serializer.is_valid():
+            serializer.save(creator=request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # 이모티콘 이미지 다 가져오기
 class EmoticonImagesView(APIView):
@@ -88,6 +96,6 @@ class UserBaseEmoticonView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, user_id):
-        base_emoticon = get_object_or_404(Emoticon, id=3)
+        base_emoticon = get_object_or_404(Emoticon, title='기본')
         serializer = EmoticonSerializer(base_emoticon)
         return Response(serializer.data, status=status.HTTP_200_OK)
