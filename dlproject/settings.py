@@ -38,8 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # site 설정
-    'django.contrib.sites',
     
     'rest_framework',
     'rest_framework_simplejwt',
@@ -53,8 +51,6 @@ INSTALLED_APPS = [
 
     'allauth',
     'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',   #구글 소셜로그인
 
     'users',
     'articles',
@@ -159,7 +155,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        "rest_framework.authentication.TokenAuthentication",
     )
 }
 
@@ -206,21 +201,19 @@ SIMPLE_JWT = {
 }
 
 # 이메일 인증
-
-REST_USE_JWT = True #SocialLoginView 사용시 필요
 REST_AUTH = {
     'SESSION_LOGIN': False,
     'USE_JWT': True,
 }
-
+REST_USE_JWT = True
 SITE_ID = 1 #사이트 아이디 기본값
 
 ACCOUNT_EMAIL_REQUIRED = True            # email 필드 필수-이메일 인증
 ACCOUNT_USERNAME_REQUIRED = True        # username 필드 필수-로그인시
 ACCOUNT_AUTHENTICATION_METHOD = 'username'
-# ACCOUNT_EMAIL_VERIFICATION = 'none'    # 메일 주소를 인증하지 않으면 회원가입하더라도 로그인할 수 없다
+ACCOUNT_EMAIL_VERIFICATION = 'none'    # 메일 주소를 인증하지 않으면 회원가입하더라도 로그인할 수 없다
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True # 유저가 받은 링크를 클릭하면 회원가입 완료되게끔
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+# ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
 # 이메일 인증
 EMAIL_BACKEND = my_settings.EMAIL['EMAIL_BACKEND']
