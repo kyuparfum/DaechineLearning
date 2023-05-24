@@ -28,8 +28,7 @@ client_pw = my_settings.SPOTYPY_KEY["music_pw"]
 access_token = ""
 scheduler = BackgroundScheduler()
 # Create your views here.
-
-
+# access_token 받아오는 class
 class GetMusicAccessToken(APIView):
     def post(self, request, format=None):
         auth_url = 'https://accounts.spotify.com/api/token'
@@ -48,7 +47,7 @@ class GetMusicAccessToken(APIView):
         my_settings.SPOTYPY_KEY["bearer_token"] = access_token
         return Response({'access_token': access_token})
 
-
+# access_token 받아오는 함수
 def get_token():
     global access_token
     auth_url = 'https://accounts.spotify.com/api/token'
@@ -61,9 +60,7 @@ def get_token():
     res = requests.post(auth_url, headers=header, data=data)
     response_object = res.json()
     access_token = response_object['access_token']
-
-
-# 스케줄링 함수 등록
+# 자동시작함수 스케줄링사용
 get_token()
 scheduler.add_job(get_token, 'interval', minutes=59)
 # 스케줄링 시작
@@ -81,7 +78,7 @@ class MusicGenreApiDetail(APIView):  # 음악장르 전체목록 조회
         data = response.json()
         return JsonResponse(data, safe=False)
 
-
+#음악검색api 사용해서 음악검색 class
 class MusicSearchApiDetail(APIView):
     def post(self, request, format=None):
         query = request.data.get('query', None)  # 검색어는 필수로 작성해야 함.
@@ -107,20 +104,6 @@ class MusicSearchApiDetail(APIView):
             artists = data.get('artists', {}).get('items', [])
             tracks_serializer = MusicSerializer(tracks, many=True)
             artists_serializer = ArtistSerializer(artists, many=True)
-
-            for artist in artists:
-                artist_id = artist.get('id')
-                artist_url = f'https://api.spotify.com/v1/artists/{artist_id}'
-                artist_headers = {
-                    'Authorization': f'Bearer {access_token}',
-                }
-                artist_response = requests.get(
-                    artist_url, headers=artist_headers)
-
-                if artist_response.status_code == 200:
-                    artist_data = artist_response.json()
-                    artist['images'] = artist_data.get('images', [])
-
             return Response({
                 'tracks': tracks_serializer.data,
                 'artists': artists_serializer.data,
@@ -128,8 +111,8 @@ class MusicSearchApiDetail(APIView):
         else:
             return Response({'message': '트랙을 불러 올 수 없습니다.'}, status=response.status_code)
 
-
-class MusicApiDetail(APIView):  # 음악 api2023년 리스트 인기도순으로 정렬
+# 음악 api2023년 리스트 인기도순으로 정렬
+class MusicApiDetail(APIView):
     def get(self, request):
         track_info = []
         for i in range(0, 1000, 50):

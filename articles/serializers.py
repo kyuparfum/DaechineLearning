@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from articles.models import Article
-
-
+# serializer는 전부 검색부분용 입니다. 
+# 노래제목,가수, 해당 곡 앨범자켓 
 class MusicSerializer(serializers.Serializer):
     name = serializers.SerializerMethodField()
     artist = serializers.SerializerMethodField()
