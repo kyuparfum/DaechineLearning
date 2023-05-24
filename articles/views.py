@@ -2,7 +2,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from articles.models import Article
+from articles.models import Article , Music
 from articles.serializers import (
     ArticleListSerializer,
     ArticleCreateSerializer,
@@ -110,6 +110,18 @@ class MusicSearchApiDetail(APIView):
             })
         else:
             return Response({'message': '트랙을 불러 올 수 없습니다.'}, status=response.status_code)
+
+class SaveMusic(APIView):
+    def post(self, request, format=None):
+        name = request.data.get('name', None)
+        artist = request.data.get('artist', None)
+        album = request.data.get('album', None)
+        music_id = request.data.get('music_id', None)
+
+        # Music 모델에 데이터 저장
+        music = Music.objects.create(name=name, artist=artist, album=album, music_id=music_id)
+
+        return Response({'message': '데이터베이스 저장성공!'})
 
 # 음악 api2023년 리스트 인기도순으로 정렬
 class MusicApiDetail(APIView):

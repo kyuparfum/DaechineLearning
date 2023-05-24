@@ -1,10 +1,12 @@
 from rest_framework import serializers
+from .models import Article
 # serializer는 전부 검색부분용 입니다. 
 # 노래제목,가수, 해당 곡 앨범자켓 
 class MusicSerializer(serializers.Serializer):
     name = serializers.SerializerMethodField()
     artist = serializers.SerializerMethodField()
     album = serializers.SerializerMethodField()
+    id = serializers.CharField()
 
     def get_name(self, obj):
         return obj.get('name')
@@ -20,6 +22,7 @@ class MusicSerializer(serializers.Serializer):
         album = obj.get('album', {})
         return {
             'name': album.get('name'),
+            'id': album.get('id'),
             'release_date': album.get('release_date'),
             'images': album.get('images'),
             'artist_name': album.get('artists', [{}])[0].get('name'),
