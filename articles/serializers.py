@@ -43,6 +43,7 @@ class ArtistSerializer(serializers.Serializer):
 class ArticleListSerializer (serializers.ModelSerializer):
     """ 포스팅된 게시글 메인으로 가져오기 """
     writer = serializers.SerializerMethodField()
+    id = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
@@ -50,7 +51,13 @@ class ArticleListSerializer (serializers.ModelSerializer):
 
     # 작성자 필드 추가
     def get_writer(self, obj):
-        return obj.writer.username
+        # return obj.writer.username
+        return obj.get('writer')
+
+    def get_id(self, obj):
+        return obj.id.article_id
+
+
 
 
 class ArticleCreateSerializer (serializers.ModelSerializer):
@@ -63,6 +70,7 @@ class ArticleCreateSerializer (serializers.ModelSerializer):
 class ArticleDetailSerializer (serializers.ModelSerializer):
     """ 게시글 상세 확인하기 """
     writer = serializers.SerializerMethodField()
+    id = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
@@ -74,3 +82,6 @@ class ArticleDetailSerializer (serializers.ModelSerializer):
 
     def get_writer(self, obj):
         return obj.writer.username
+
+    def get_id(self, obj):
+        return obj.id.article_id

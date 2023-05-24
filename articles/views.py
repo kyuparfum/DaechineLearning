@@ -8,7 +8,7 @@ from articles.serializers import (
     ArticleCreateSerializer,
     ArticleDetailSerializer,
 )
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import permissions
 import base64
 import requests
 from rest_framework.exceptions import ParseError
@@ -196,11 +196,11 @@ class MusicApiDetail(APIView):  # 음악 api2023년 리스트 인기도순으로
 
 
 class ArticleView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get(self, request):
         """ GET 요청 시 포스팅된 모든 게시글 불러옵니다. many = True 필요 """
-        post = Article.objects.all()
+        post = Article.objects.filter(id=article_id, db_status=1)
         serializer = ArticleListSerializer(post, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -215,17 +215,17 @@ class ArticleView(APIView):
 
 
 class ArticleDetailView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get(self, request, article_id):
         """ GET 요청 시 특정 게시글을 가져옵니다 """
-        post = get_object_or_404(Article, id=article_id)
+        post = get_object_or_404(Article.objects.filter(id=article_id, db_status=1))
         serializer = ArticleDetailSerializer(post)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, article_id):
         """ PUT 요청 시 특정 게시글을 수정합니다. """
-        post = get_object_or_404(Article, id=article_id)
+        post = get_object_or_404(Article.objects.filter(id=article_id, db_status=1))
 
         if post.writer != request.user:
             return Response({"message": "수정 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
