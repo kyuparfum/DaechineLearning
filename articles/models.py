@@ -15,3 +15,12 @@ class Article(CommonModel):
 
     def __str__(self):
         return self.title
+
+class Music(models.Model):
+    music_id = models.CharField("MusicId", max_length=50)
+    name = models.CharField("Name", max_length=50)
+    artist = models.CharField("Artist",max_length=50)
+    album = models.CharField("Album",max_length=50)
+
+    def __str__(self):
+        return self.name
