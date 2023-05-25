@@ -43,7 +43,6 @@ class EmoticonCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         images_data = self.context.get('images', None)
-        print(images_data)
         emoticon = super().create(validated_data)
         if images_data:
             for image_data in images_data:
