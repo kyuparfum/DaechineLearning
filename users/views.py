@@ -1,10 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import CustomTokenObtainPairSerializer, Userserializer
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework import permissions
-from users.models import User
+# from .serializers import CustomTokenObtainPairSerializer, Userserializer
+# from rest_framework_simplejwt.views import TokenObtainPairView
+# from rest_framework import permissions
+# from users.models import User
+import speech_recognition as sr
 
 from django.http import HttpResponseRedirect
 from rest_framework.permissions import AllowAny
@@ -37,3 +38,18 @@ class ConfirmEmailView(APIView):
         qs = EmailConfirmation.objects.all_valid()
         qs = qs.select_related("email_address__user")
         return qs
+    
+class SoundAI (APIView):
+    def post(self, request):
+        audios=request.data['blob']
+        Recognizer = sr.Recognizer()  # 인스턴스 생성
+        mic = sr.AudioFile(audios)
+        with mic as source:  # 안녕~이라고 말하면
+            audio = Recognizer.listen(source)
+        try:
+            data = Recognizer.recognize_google(audio, language="ko")
+        except:
+            data=""
+
+        print(data)  # 안녕 출력
+        return Response({"message":data}, status=status.HTTP_200_OK)
