@@ -6,6 +6,7 @@ urlpatterns = [
     path("music/api/token", views.GetMusicAccessToken.as_view(),name="music_api_token"),
     path("music/api/search", views.MusicSearchApiDetail.as_view(),name="music_api_search"),
     path("music/api/genre", views.MusicGenreApiDetail.as_view(),name="music_api_genre"),
+    path("music/api/music-id-search", views.MusicIdSearch.as_view(),name="music_api_id_search"),
     path("save_music", views.SaveMusic.as_view(),name="save_music"),
     # 메인 게시글 작성(POST), 불러오기(GET)
     path('', views.ArticleView.as_view(), name='article_main'),

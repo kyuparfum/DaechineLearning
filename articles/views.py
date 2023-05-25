@@ -1,3 +1,4 @@
+import pprint
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -125,6 +126,21 @@ class SaveMusic(APIView):
         music = Music.objects.create(name=name, artist=artist, album=album, music_id=music_id)
 
         return Response({'message': '데이터베이스 저장성공!'})
+# music id로 검색
+class MusicIdSearch(APIView):
+    def post(self, request,):
+        music_id = request.data.get('music_id', None)
+        search_url = f'https://api.spotify.com/v1/tracks/{music_id}'
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+        }
+        response = requests.get(search_url, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            preview_music = data['preview_url']
+            return Response({'preview_url': preview_music})
+        else:
+            return Response({'message': '트랙을 찾을 수 없습니다.'}, status=response.status_code)
 
 # 음악 api2023년 리스트 인기도순으로 정렬
 class MusicApiDetail(APIView):
@@ -149,16 +165,6 @@ class MusicApiDetail(APIView):
                             '가수이름or팀이름': a['name'],
                             '직업?유형?': a['type'],
                             '스포티파이자체_주소?키값?': a['uri']} for a in t['album']['artists']],
-                        # '앨범전체': t['album'],
-                        # '앨범유형': t['album']['album_type'],
-                        # '스포티파이_곡페이지': t['album']['external_urls']['spotify'],
-                        # '세부정보_구독이안돼서안보임': t['album']['href'],
-
-                        # '출시일': t['album']['release_date'],
-                        # 'release_date_precision': t['album']['release_date_precision'],
-                        # '전첵트랙수': t['album']['total_tracks'],
-                        # 'type': t['album']['type'],
-                        # 'uri': t['album']['uri'],
                     }
                 except KeyError:
                     album_data = {
@@ -176,15 +182,6 @@ class MusicApiDetail(APIView):
                             '가수이름or팀이름': a['name'],
                             '직업?유형?': a['type'],
                             '스포티파이자체_주소?키값?': a['uri']} for a in t['album']['artists']],
-                        # 'popularity': t['popularity'],
-                        # '앨범유형': t['album']['album_type'],
-                        # '스포티파이_곡페이지': t['album']['external_urls']['spotify'],
-                        # '세부정보_구독이안돼서안보임': t['album']['href'],
-                        # '출시일': t['album']['release_date'],
-                        # 'release_date_precision': t['album']['release_date_precision'],
-                        # '전첵트랙수': t['album']['total_tracks'],
-                        # 'type': t['album']['type'],
-                        # 'uri': t['album']['uri'],
                     }
                 result_data = {
                     'album': album_data,
