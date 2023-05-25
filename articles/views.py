@@ -2,17 +2,20 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from articles.models import Article , Music
+from articles.models import Article , Music, Genre,\
+MusicGenreTable
 from articles.serializers import (
     ArticleListSerializer,
     ArticleCreateSerializer,
     ArticleDetailSerializer,
 )
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,\
+IsAuthenticatedOrReadOnly
 import base64
 import requests
 from rest_framework.exceptions import ParseError
-from .serializers import MusicSerializer, ArtistSerializer
+from .serializers import MusicSerializer, ArtistSerializer,\
+GenreSerializer
 from django.http import JsonResponse
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -241,3 +244,125 @@ class ArticleDetailView(APIView):
             post.db_status = 2
             post.save()
             return Response({"message": "삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
+
+# 장르 생성 / 조회 / 수정 / 삭제
+class GenreView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(self,request):
+        genre = Genre.objects.filter(db_status=1).order_by('name')
+        serializer = GenreSerializer(genre, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        serializer = GenreSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(creator=request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # 수정권한 등록한사람한테?
+    def put(self, request, genre_id):
+        genre = get_object_or_404(Genre, id=genre_id, db_status=1)
+        if request.user == genre.creator:
+            serializer = GenreSerializer(genre, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message':'수정 권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)
+
+    # 장르 삭제
+    def delete(self, request, genre_id):
+        genre = get_object_or_404(Genre, id=genre_id, db_status=1)
+
+        # 작성자만 삭제 가능하게
+        if request.user == genre.creator:
+            genre.db_status = 2
+            genre.save()
+            self.genre_delete_func(genre)
+            return Response({"message": "삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"message": "권한이 없습니다!"}, status=status.HTTP_403_FORBIDDEN)
+
+    # 장르 삭제시 게시글-장르 테이블 같이 삭제처리
+    def genre_delete_func(self, genre):
+        article_genre = MusicGenreTable.objects.filter(genre=genre)
+        for a in article_genre:
+            a.db_status = 2
+            a.save()
+    
+    # 장르 복구시 게시글-장르 테이블 같이 복구 
+    # 따로 프론트에서 구현해서 메소드 사용 or admin 페이지 커스텀해서 복구
+    def genre_restore_func(genre):
+        article_genre = MusicGenreTable.objects.filter(genre=genre)
+        for a in article_genre:
+            a.db_status = 1
+            a.save()
+
+# 게시글 장르 선택 / 조회
+class MusicGenreTableView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(self, request, article_id):
+        genre_list = MusicGenreTable.objects.filter(music=article_id, db_status=1).order_by('genre__name')
+        genres = []
+        for a in genre_list:
+            genres.append(a.genre)
+        serializer = GenreSerializer(genres, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, article_id):
+        # 추가할 장르id를 리스트로 받아서?
+        article = get_object_or_404(Article, id=article_id, db_status=1)
+        select_genre = request.data['select_genre']
+        if request.user == article.writer:
+            for a in select_genre:
+                add_genre = get_object_or_404(Genre, id=a, db_status=1)
+                saved_genre = MusicGenreTable.objects.filter(music=article, genre=add_genre, db_status=1)
+                if saved_genre:
+                    pass
+                else:
+                    MusicGenreTable.objects.create(music=article, genre=add_genre)
+            return Response({"message": "저장 완료했습니다!"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "권한이 없습니다!"}, status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request, article_id):
+        # 제거할 장르id를 리스트로 받아서?
+        print(request.data)
+        article = get_object_or_404(Article, id=article_id, db_status=1)
+        del_genres = request.data['del_genres']
+        if request.user == article.writer:
+            for a in del_genres:
+                del_genre = get_object_or_404(Genre, id=a, db_status=1)
+                saved_genre = get_object_or_404(MusicGenreTable, music=article, genre=del_genre, db_status=1)
+                if saved_genre:
+                    saved_genre.db_status=2
+                    saved_genre.save()
+                else:
+                    pass
+            return Response({"message": "삭제 완료했습니다!"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "권한이 없습니다!"}, status=status.HTTP_403_FORBIDDEN)
+
+# 장르 복구 / 게시글-장르 테이블 같이 복구
+class GenreRestoreView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        restore_name = request.data['name']
+        genre = get_object_or_404(Genre, name=restore_name, db_status=2)
+        serializer = GenreSerializer(genre, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            restore_table = MusicGenreTable.objects.filter(genre=genre, db_status=2)
+            for a in restore_table:
+                a.db_status = 1
+                a.save()
+            return Response({"message": "복구 완료했습니다!"}, status=status.HTTP_200_OK)
+        # else:
+        #     return Response({'message':'수정 권한이 없습니다.'}, status=status.HTTP_403_FORBIDDEN)

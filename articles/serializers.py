@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from articles.models import Article
+from articles.models import Article, Genre
 
 # serializer는 전부 검색부분용 입니다. 
 # 노래제목,가수, 해당 곡 앨범자켓 
@@ -79,4 +79,8 @@ class ArticleDetailSerializer (serializers.ModelSerializer):
         return obj.writer.username
     
 
-
+# 장르
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = '__all__'
