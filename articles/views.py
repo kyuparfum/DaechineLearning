@@ -11,8 +11,11 @@ IsAuthenticatedOrReadOnly
 import base64
 import requests
 from rest_framework.exceptions import ParseError
-from .serializers import MusicSerializer, ArtistSerializer,\
-GenreSerializer
+from articles.serializers import (
+    ArticleListSerializer,
+    ArticleCreateSerializer,
+    ArticleDetailSerializer,
+)
 from django.http import JsonResponse
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
