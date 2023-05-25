@@ -26,7 +26,7 @@ SECRET_KEY = my_settings.SECRET_KEY["secret"]
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,6 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     
     'rest_framework',
     'rest_framework_simplejwt',
@@ -48,9 +52,6 @@ INSTALLED_APPS = [
     # 소셜, 이메일인증 라이브러리
     'dj_rest_auth',
     'dj_rest_auth.registration',
-
-    'allauth',
-    'allauth.account',
 
     'users',
     'articles',
@@ -155,14 +156,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     )
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_HEADERS = ( 
+    'X-CSRFToken',
+    'csrftoken',
+    'authorization',
+    )
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10000),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
@@ -202,18 +209,27 @@ SIMPLE_JWT = {
 
 # 이메일 인증
 REST_AUTH = {
-    'SESSION_LOGIN': False,
     'USE_JWT': True,
+    'SESSION_LOGIN': False,
+    'JWT_AUTH_COOKIE': 'users-auth',
+    'JWT_AUTH_REFRESH_COOKIE': 'refresh-token',
+    'JWT_TOKEN_CLAIMS_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenObtainPairSerializer',
+    'LOGIN_SERIALIZER': 'dj_rest_auth.serializers.LoginSerializer',
+    'TOKEN_SERIALIZER': 'dj_rest_auth.serializers.TokenSerializer',
+    'JWT_SERIALIZER': 'dj_rest_auth.serializers.JWTSerializer',
+    'JWT_AUTH_HTTPONLY':False
 }
 REST_USE_JWT = True
-SITE_ID = 1 #사이트 아이디 기본값
+JWT_AUTH_COOKIE = 'jwt_token' # 만료시간 짧은 토큰
+JWT_AUTH_REFRESH_COOKIE = 'jwt_refresh_token' #만료된 토큰을 갱신 시켜주기위한 토큰
+SITE_ID = 1
 
 ACCOUNT_EMAIL_REQUIRED = True            # email 필드 필수-이메일 인증
 ACCOUNT_USERNAME_REQUIRED = True        # username 필드 필수-로그인시
 ACCOUNT_AUTHENTICATION_METHOD = 'username'
-ACCOUNT_EMAIL_VERIFICATION = 'none'    # 메일 주소를 인증하지 않으면 회원가입하더라도 로그인할 수 없다
-ACCOUNT_CONFIRM_EMAIL_ON_GET = True # 유저가 받은 링크를 클릭하면 회원가입 완료되게끔
-# ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+# ACCOUNT_EMAIL_VERIFICATION = 'none'    # 메일 주소를 인증하지 않으면 회원가입하더라도 로그인할 수 없다
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True # 유저가 받은 링크를 클릭하면 회원가입 완료
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
 # 이메일 인증
 EMAIL_BACKEND = my_settings.EMAIL['EMAIL_BACKEND']
