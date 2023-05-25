@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, permissions
 from comments.serializers import CommentSerializer, CommentCreateSerializer,\
-EmoticonSerializer, EmoticonImagesSerializer, EmoticonCreateSerializer, EmoticonImagesUpdateSerializer
+EmoticonSerializer, EmoticonImagesSerializer, EmoticonCreateSerializer
 from comments.models import Comment, Emoticon, EmoticonImages, UserBoughtEmoticon
 
 
@@ -127,11 +127,6 @@ class EmoticonDetailView(APIView):
         else:
             return Response({"message": "권한이 없습니다!"}, status=status.HTTP_403_FORBIDDEN)
 
-# # 이모티콘 이미지 추가/삭제
-# class EmoticonImagesUpdateView(APIView):
-#     def post(self, request, emoticon_id):
-#         images = EmoticonImages.objects.filter
-
 # 이모티콘 이미지 다 가져오기
 class EmoticonImagesView(APIView):
     def get(self, request):
@@ -139,7 +134,7 @@ class EmoticonImagesView(APIView):
         serializer = EmoticonImagesSerializer(emoticon_images, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-# 유저가 가진 이모티콘 가져오기
+# 유저가 가진 이모티콘 조회 / 선택
 class UserBoughtEmoticonView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -150,6 +145,30 @@ class UserBoughtEmoticonView(APIView):
             emoticons.append(a.emoticon)
         serializer = EmoticonSerializer(emoticons, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, user_id):
+        try:
+            emoticon = Emoticon.objects.get(id=int(request.data['emoticon']))
+            user = request.user
+            select = get_object_or_404(UserBoughtEmoticon, buyer=user, emoticon=emoticon)
+            if select:
+                select.db_status = 1
+                select.save()
+                return Response(status=status.HTTP_200_OK)
+        except:
+            emoticon = Emoticon.objects.get(id=int(request.data['emoticon']))
+            user = request.user
+            UserBoughtEmoticon.objects.create(buyer=user, emoticon=emoticon)
+            return Response(status=status.HTTP_200_OK)
+    
+    def delete(self, request, user_id):
+        select = get_object_or_404(UserBoughtEmoticon, buyer=user_id, emoticon=int(request.data['emoticon']))
+        if request.user == select.buyer:
+            select.db_status = 2
+            select.save()
+            return Response({"message": "삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"message": "권한이 없습니다!"}, status=status.HTTP_403_FORBIDDEN)
 
 # 기본 이모티콘 가져오기
 class UserBaseEmoticonView(APIView):
