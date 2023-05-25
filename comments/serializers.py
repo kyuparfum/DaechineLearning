@@ -18,11 +18,16 @@ class CommentCreateSerializer(serializers.ModelSerializer):
 class EmoticonImagesSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmoticonImages
-        fields = ("id", "image",)
+        fields = ("id", "image", "db_status",)
 
 # 이모티콘
 class EmoticonSerializer(serializers.ModelSerializer):
-    images = EmoticonImagesSerializer(many=True, required=False)
+    images = serializers.SerializerMethodField()
+
+    def get_images(self, emoticon):
+        qs = EmoticonImages.objects.filter(db_status=1, emoticon=emoticon)
+        serializer = EmoticonImagesSerializer(instance=qs, many=True)
+        return serializer.data
 
     class Meta:
         model = Emoticon
@@ -48,4 +53,18 @@ class EmoticonCreateSerializer(serializers.ModelSerializer):
 class UserBoughtEmoticonSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserBoughtEmoticon
+        fields = "__all__"
+
+# 이모티콘 수정용 이미지
+class EmoticonImagesUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmoticonImages
+        fields = ("id", "db_status",)
+
+# 이모티콘 수정용
+class EmoticonUpdateSerializer(serializers.ModelSerializer):
+    images = EmoticonImagesUpdateSerializer(many=True, required=False)
+
+    class Meta:
+        model = Emoticon
         fields = "__all__"
