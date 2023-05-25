@@ -1,10 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-# from .serializers import CustomTokenObtainPairSerializer, Userserializer
-# from rest_framework_simplejwt.views import TokenObtainPairView
-# from rest_framework import permissions
-# from users.models import User
+from my_settings import EMAIL
 import speech_recognition as sr
 
 from django.http import HttpResponseRedirect
@@ -19,7 +16,7 @@ class ConfirmEmailView(APIView):
         self.object = confirmation = self.get_object()
         confirmation.confirm(self.request)
         # A React Router Route will handle the failure scenario
-        return HttpResponseRedirect('/') # 인증성공
+        return HttpResponseRedirect(EMAIL['REDIRECT_PAGE']) # 인증성공
 
     def get_object(self, queryset=None):
         key = self.kwargs['key']
