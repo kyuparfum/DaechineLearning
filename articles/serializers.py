@@ -66,4 +66,10 @@ class ArticleDetailSerializer (serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = '__all__'
+        
+# 장르
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = '__all__'
 
