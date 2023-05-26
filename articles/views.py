@@ -18,6 +18,7 @@ from articles.serializers import (
     MusicSerializer,
     ArtistSerializer,
     GenreSerializer,
+    MusicGetSerializer,
 )
 from django.http import JsonResponse
 import spotipy
@@ -123,7 +124,8 @@ class SaveMusic(APIView):
         print('===========1===========================================')
         print(request.data)
         print('===========2===========================================')
-        user = request.data.get('user', None)
+        # user = request.data.get('user', None)
+        user = request.user
         name = request.data.get('name', None)
         artist = request.data.get('artist', None)
         album = request.data.get('album', None)
