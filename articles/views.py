@@ -5,8 +5,6 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions
 from articles.models import Article , Music, Genre,\
 MusicGenreTable
-from articles.serializers import ArticleListSerializer,\
-ArticleCreateSerializer, ArticleDetailSerializer
 from rest_framework.permissions import IsAuthenticated,\
 IsAuthenticatedOrReadOnly
 import base64

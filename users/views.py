@@ -56,3 +56,6 @@ class SoundAI (APIView):
 
         print(data)  # 안녕 출력
         return Response({"message":data}, status=status.HTTP_200_OK)
+
+
+#유사한 사람
