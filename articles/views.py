@@ -3,20 +3,12 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, permissions
-from articles.models import Article , Music, Genre,\
-MusicGenreTable
-from articles.serializers import ArticleListSerializer,\
-ArticleCreateSerializer, ArticleDetailSerializer
-from rest_framework.permissions import IsAuthenticated,\
-IsAuthenticatedOrReadOnly
+from articles.models import Article , Music, Genre, MusicGenreTable
+from articles.serializers import ArticleListSerializer, ArticleCreateSerializer, ArticleDetailSerializer, MusicSerializer, ArtistSerializer
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 import base64
 import requests
 from rest_framework.exceptions import ParseError
-from articles.serializers import (
-    ArticleListSerializer,
-    ArticleCreateSerializer,
-    ArticleDetailSerializer,
-)
 from django.http import JsonResponse
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
