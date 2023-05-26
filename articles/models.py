@@ -13,12 +13,12 @@ class Music(models.Model):
         return self.name
 
 class Article(models.Model):
+    music = models.ForeignKey(Music, on_delete=models.CASCADE, related_name='Article_list')
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     music_id = models.ForeignKey(Music,on_delete=models.CASCADE,related_name="musicId")
     title = models.CharField("Title", max_length=50, null=True, blank=True)
     content = models.TextField(null=True, blank=True)
     music_search = models.CharField(max_length=50, null=True, blank=True)
-    genre = models.CharField(max_length=30, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
