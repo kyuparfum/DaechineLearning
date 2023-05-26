@@ -45,10 +45,15 @@ class ArtistSerializer(serializers.Serializer):
 
 class ArticleListSerializer (serializers.ModelSerializer):
     """ 게시글 직렬화 """
-
+    user = serializers.SerializerMethodField()
+    music_id = serializers.SerializerMethodField()
+    def get_user(self, obj):
+        return obj.user.username
+    def get_music_id(self, obj):
+        return obj.music_id.name
     class Meta:
         model = Article
-        fields = ['id', 'writer', 'title', 'content', 'created_at', 'updated_at']
+        fields = "__all__"
 
 
 class ArticleCreateSerializer (serializers.ModelSerializer):
@@ -56,8 +61,7 @@ class ArticleCreateSerializer (serializers.ModelSerializer):
 
     class Meta:
         model = Article
-        exclude = ['id', 'writer', 'db_status']
-        # fields = ['title', 'content']
+        fields = "__all__"
 
 
 class ArticleDetailSerializer (serializers.ModelSerializer):
