@@ -1,6 +1,7 @@
 from django.contrib import admin
 from articles.models import Article, Music, Genre, MusicGenreTable
 
+
 # Register your models here.
 # class ArticlesAdmin(admin.ModelAdmin):
 #     list_display = ['id', 'content', 'created_at']
@@ -24,3 +25,4 @@ class ArticlesAdmin(admin.ModelAdmin):
     list_display_links = ["id", "title", "content", "music_id",]
 
 admin.site.register(Article, ArticlesAdmin)
+
