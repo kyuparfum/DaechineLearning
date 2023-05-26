@@ -3,6 +3,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, permissions
+from users.models import User
 from articles.models import Article , Music, Genre,\
 MusicGenreTable
 from rest_framework.permissions import IsAuthenticated,\
@@ -16,6 +17,7 @@ from articles.serializers import (
     ArticleDetailSerializer,
     MusicSerializer,
     ArtistSerializer,
+    GenreSerializer,
 )
 from django.http import JsonResponse
 import spotipy
@@ -116,14 +118,19 @@ class MusicSearchApiDetail(APIView):
             return Response({'message': '트랙을 불러 올 수 없습니다.'}, status=response.status_code)
 
 class SaveMusic(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
     def post(self, request, format=None):
+        print('===========1===========================================')
+        print(request.data)
+        print('===========2===========================================')
+        user = request.data.get('user', None)
         name = request.data.get('name', None)
         artist = request.data.get('artist', None)
         album = request.data.get('album', None)
         music_id = request.data.get('music_id', None)
-
+        print("========확인=========",user)
         # Music 모델에 데이터 저장
-        music = Music.objects.create(name=name, artist=artist, album=album, music_id=music_id)
+        music = Music.objects.create(user=User.objects.get(id=user), name=name, artist=artist, album=album, music_id=music_id, )
 
         return Response({'message': '데이터베이스 저장성공!'})
 # music id로 검색
@@ -190,57 +197,47 @@ class MusicApiDetail(APIView):
         return JsonResponse(track_info, safe=False)
 
 
-class ArticleView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
+class ArticleView(APIView):# serializer 수정? 꾸미기?
     def get(self, request):
-        """ GET : 생성된 모든 게시글 불러오기 """
-        post = Article.objects.filter(db_status=1)
-        serializer = ArticleListSerializer(post, many=True)
+        articles = Article.objects.all()
+        serializer = ArticleListSerializer(articles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        """ POST : 게시글 생성하기 """
         serializer = ArticleCreateSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(writer=request.user)
+            serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) # exception handling : title/content required
-
-
-class ArticleDetailView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def get(self, request, article_id):
-        """ GET : 특정 게시글 불러오기 """
-        post = get_object_or_404(Article, id=article_id, db_status=1) # exception handling : valid article_id/db_status required
-        serializer = ArticleDetailSerializer(post)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-        
-    def put(self, request, article_id):
-        """ PUT : 작성자 게시글 수정하기 """
-        post = get_object_or_404(Article, id=article_id, db_status=1)
-
-        if post.writer != request.user: # exception handling : only writer(refer User FK) can delete
-            return Response({"message": "수정 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
-        serializer = ArticleCreateSerializer(post, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, article_id):
-        """ DELETE : 작성자 게시글 삭제하기 """
-        post = get_object_or_404(Article, id=article_id, db_status=1)
 
-        if post.writer != request.user:
-            return Response({"message": "삭제 권한이 없습니다"}, status=status.HTTP_403_FORBIDDEN)
+class ArticleDetailView(APIView):
+    def get(self, request, pk):
+        article = get_object_or_404(Article, id=pk)
+        serializer = ArticleListSerializer(article)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        article = get_object_or_404(Article, id=pk)
+        serializer = ArticleCreateSerializer(article, data=request.data)
+        if request.user == article.user:
+            serializer = ArticleCreateSerializer(article, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
         else:
-            post.db_status = 2
-            post.save()
-            return Response({"message": "삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
+            return Response("권한이없습니다.", status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request, pk):
+        article = get_object_or_404(Article, id=pk)
+        if request.user == article.user:
+            article.delete()
+            return Response("삭제되었습니다.", status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response("권한이없습니다.", status=status.HTTP_403_FORBIDDEN)
 
 # 장르 생성 / 조회 / 수정 / 삭제
 input_genre = ["acoustic", "afrobeat", "alt-rock", "alternative", "ambient", "anime", "black-metal", "bluegrass", "blues", "bossanova", "brazil", "breakbeat", "british", "cantopop", "chicago-house", "children", "chill", "classical", "club", "comedy", "country", "dance", "dancehall", "death-metal", "deep-house", "detroit-techno", "disco", "disney", "drum-and-bass", "dub", "dubstep", "edm", "electro", "electronic", "emo", "folk", "forro", "french", "funk", "garage", "german", "gospel", "goth", "grindcore", "groove", "grunge", "guitar", "happy", "hard-rock", "hardcore", "hardstyle", "heavy-metal", "hip-hop", "holidays", "honky-tonk", "house", "idm", "indian", "indie", "indie-pop", "industrial", "iranian", "j-dance", "j-idol", "j-pop", "j-rock", "jazz", "k-pop", "kids", "latin", "latino", "malay", "mandopop", "metal", "metal-misc", "metalcore", "minimal-techno", "movies", "mpb", "new-age", "new-release", "opera", "pagode", "party", "philippines-opm", "piano", "pop", "pop-film", "post-dubstep", "power-pop", "progressive-house", "psych-rock", "punk", "punk-rock", "r-n-b", "rainy-day", "reggae", "reggaeton", "road-trip", "rock", "rock-n-roll", "rockabilly", "romance", "sad", "salsa", "samba", "sertanejo", "show-tunes", "singer-songwriter", "ska", "sleep", "songwriter", "soul", "soundtracks", "spanish", "study", "summer", "swedish", "synth-pop", "tango", "techno", "trance", "trip-hop", "turkish", "work-out", "world-music"]
