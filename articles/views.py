@@ -17,6 +17,7 @@ from articles.serializers import (
     ArticleDetailSerializer,
     MusicSerializer,
     ArtistSerializer,
+    GenreSerializer,
 )
 from django.http import JsonResponse
 import spotipy
