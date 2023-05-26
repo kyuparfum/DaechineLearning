@@ -30,8 +30,13 @@ class Genre(CommonModel):
     # creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField("장르", max_length=50, unique=True)
 
+    def __str__(self):
+        return self.name
+
 # 장르 - 게시글 테이블
 class MusicGenreTable(CommonModel):
     music = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='genre_list')
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE, related_name='music_list')
 
+    def __str__(self):
+        return f'{self.music}//{self.genre}'

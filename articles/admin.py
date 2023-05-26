@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Article, Genre, MusicGenreTable
+from .models import Article, Genre, MusicGenreTable, Music
 
 # Register your models here.
 # class ArticlesAdmin(admin.ModelAdmin):
@@ -9,3 +9,4 @@ from .models import Article, Genre, MusicGenreTable
 admin.site.register(Article)
 admin.site.register(Genre)
 admin.site.register(MusicGenreTable)
+admin.site.register(Music)
