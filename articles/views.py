@@ -18,6 +18,7 @@ from articles.serializers import (
     MusicSerializer,
     ArtistSerializer,
     GenreSerializer,
+    MusicGetSerializer,
 )
 from django.http import JsonResponse
 import spotipy
@@ -123,16 +124,20 @@ class SaveMusic(APIView):
         print('===========1===========================================')
         print(request.data)
         print('===========2===========================================')
-        user = request.data.get('user', None)
+        # user = request.data.get('user', None)
+        user = request.user
         name = request.data.get('name', None)
         artist = request.data.get('artist', None)
         album = request.data.get('album', None)
         music_id = request.data.get('music_id', None)
         print("========확인=========",user)
         # Music 모델에 데이터 저장
-        music = Music.objects.create(user=User.objects.get(id=user), name=name, artist=artist, album=album, music_id=music_id, )
-
-        return Response({'message': '데이터베이스 저장성공!'})
+        music = Music.objects.create(user=user, name=name, artist=artist, album=album, music_id=music_id)
+        music.save()
+        print(music)
+        serializer = MusicGetSerializer(music)
+        print(serializer)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 # music id로 검색
 class MusicIdSearch(APIView):
     def post(self, request,):
