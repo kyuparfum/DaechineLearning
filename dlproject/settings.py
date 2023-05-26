@@ -38,9 +38,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    
     'rest_framework',
     'rest_framework_simplejwt',
+    #추가
+    'rest_framework.authtoken',
     'corsheaders',
+    
+    # 소셜, 이메일인증 라이브러리
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
 
     'users',
     'articles',
@@ -145,14 +156,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     )
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_HEADERS = ( 
+    'authorization',
+    'content-type',
+    )
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10000),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
@@ -189,3 +205,28 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+# 이메일 인증
+REST_AUTH = {
+    'USE_JWT': True,
+    'SESSION_LOGIN': False,
+    'JWT_TOKEN_CLAIMS_SERIALIZER': 'users.serializers.CustomTokenObtainPairSerializer',
+    'JWT_AUTH_HTTPONLY':False # refresh 토큰 생성
+}
+REST_USE_JWT = True
+SITE_ID = 1
+
+ACCOUNT_EMAIL_REQUIRED = True            # email 필드 필수-이메일 인증
+ACCOUNT_USERNAME_REQUIRED = True        # username 필드 필수-로그인시
+ACCOUNT_AUTHENTICATION_METHOD = 'username'
+# ACCOUNT_EMAIL_VERIFICATION = 'none'    # 메일 주소를 인증하지 않으면 회원가입하더라도 로그인할 수 없다
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True # 유저가 받은 링크를 클릭하면 회원가입 완료
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
+# 이메일 인증
+EMAIL_BACKEND = my_settings.EMAIL['EMAIL_BACKEND']
+EMAIL_USE_TLS = my_settings.EMAIL['EMAIL_USE_TLS']
+EMAIL_PORT = my_settings.EMAIL['EMAIL_PORT']
+EMAIL_HOST = my_settings.EMAIL['EMAIL_HOST']
+EMAIL_HOST_USER = my_settings.EMAIL['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = my_settings.EMAIL['EMAIL_HOST_PASSWORD']

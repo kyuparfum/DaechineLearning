@@ -1,46 +1,40 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import CustomTokenObtainPairSerializer, Userserializer
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework import permissions
-from users.models import User
+from my_settings import EMAIL
 import speech_recognition as sr
 
+from django.http import HttpResponseRedirect
+from rest_framework.permissions import AllowAny
+from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
 
-class Userview(APIView):
-    def post(self, request):
-      serializer = Userserializer(data=request.data)
-      if serializer.is_valid(raise_exception=True):
-        serializer.save()
-        return Response({"message":"!!회원가입완료!!"}, status=status.HTTP_201_CREATED)
-      else:
-        return Response({"message":f"${serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST)
-        # return Response({"message":"회원가입테스트"}, status=status.HTTP_201_CREATED)
-    
-    # 회원정보 수정(일부)
-    def patch(self, request):
-        if not request.user.is_authenticated:
-                    return Response("로그인 먼저 해주세요", status=status.HTTP_401_UNAUTHORIZED)
-        
-        # 로그인되어있다면
-        user = User.objects.get(id=request.user.id)
-        user_serializer = Userserializer(user, data=request.data, partial=True)
-        if user_serializer.is_valid(raise_exception=True):
-            user_serializer.save() # 저장    
-            return Response({'message': '회원정보가 수정완료되었습니다!'}, status=status.HTTP_200_OK)
-        
-        else:
-            return Response({"message":f"${user_serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST)
 
-class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
+class ConfirmEmailView(APIView):
+    permission_classes = [AllowAny]
 
-class mockview(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    def get(self, *args, **kwargs):
+        self.object = confirmation = self.get_object()
+        confirmation.confirm(self.request)
+        # A React Router Route will handle the failure scenario
+        return HttpResponseRedirect(EMAIL['REDIRECT_PAGE']) # 인증성공
 
-    def get(self, request):
-        return Response("로그인되어있음!")
+    def get_object(self, queryset=None):
+        key = self.kwargs['key']
+        email_confirmation = EmailConfirmationHMAC.from_key(key)
+        if not email_confirmation:
+            if queryset is None:
+                queryset = self.get_queryset()
+            try:
+                email_confirmation = queryset.get(key=key.lower())
+            except EmailConfirmation.DoesNotExist:
+                # A React Router Route will handle the failure scenario
+                return HttpResponseRedirect('/') # 인증실패
+        return email_confirmation
+
+    def get_queryset(self):
+        qs = EmailConfirmation.objects.all_valid()
+        qs = qs.select_related("email_address__user")
+        return qs
     
 class SoundAI (APIView):
     def post(self, request):
