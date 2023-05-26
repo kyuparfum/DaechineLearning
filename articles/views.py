@@ -128,9 +128,10 @@ class SaveMusic(APIView):
         artist = request.data.get('artist', None)
         album = request.data.get('album', None)
         music_id = request.data.get('music_id', None)
+        images = request.data.get('images', None)
         print("========확인=========",user)
         # Music 모델에 데이터 저장
-        music = Music.objects.create(user=User.objects.get(id=user), name=name, artist=artist, album=album, music_id=music_id, )
+        music = Music.objects.create(user=User.objects.get(id=user), name=name, artist=artist, album=album, music_id=music_id, images=images)
 
         return Response({'message': '데이터베이스 저장성공!'})
 # music id로 검색
