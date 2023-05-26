@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from articles.models import Article, Genre, Music
+from articles.models import Article, Genre, Music, MusicGenreTable
 
 # serializer는 전부 검색부분용 입니다. 
 # 노래제목,가수, 해당 곡 앨범자켓 
@@ -47,10 +47,23 @@ class ArticleListSerializer (serializers.ModelSerializer):
     """ 게시글 직렬화 """
     user = serializers.SerializerMethodField()
     music_id = serializers.SerializerMethodField()
+    genre = serializers.SerializerMethodField()
+
+    def get_genre(self, article):
+        qs = MusicGenreTable.objects.filter(db_status=1, music=article)
+        genre_name = []
+        for a in qs:
+            genre_name.append(a.genre)
+        # qs = 게시글 장르 리스트
+        print('zzzzzzz', genre_name)
+        serializer = GenreSerializer(instance=genre_name, many=True)
+        print('확인',serializer)
+        return serializer.data
     def get_user(self, obj):
         return obj.user.username
     def get_music_id(self, obj):
         return obj.music_id.name
+    
     class Meta:
         model = Article
         fields = "__all__"
@@ -78,7 +91,7 @@ class GenreSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 # music 데이터 받는용
-class MusicGetSerializer():
+class MusicGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Music
         fields = '__all__'
