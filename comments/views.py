@@ -193,3 +193,7 @@ class UserBaseEmoticonView(APIView):
         serializer = EmoticonSerializer(base_emoticon)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class testView(APIView):
+    def post(self, request):
+        print(request.data)
+        return Response(status=status.HTTP_200_OK)
