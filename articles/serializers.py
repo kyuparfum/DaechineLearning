@@ -55,9 +55,7 @@ class ArticleListSerializer (serializers.ModelSerializer):
         for a in qs:
             genre_name.append(a.genre)
         # qs = 게시글 장르 리스트
-        print('zzzzzzz', genre_name)
         serializer = GenreSerializer(instance=genre_name, many=True)
-        print('확인',serializer)
         return serializer.data
     def get_user(self, obj):
         return obj.user.username

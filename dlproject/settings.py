@@ -230,3 +230,5 @@ EMAIL_PORT = my_settings.EMAIL['EMAIL_PORT']
 EMAIL_HOST = my_settings.EMAIL['EMAIL_HOST']
 EMAIL_HOST_USER = my_settings.EMAIL['EMAIL_HOST_USER']
 EMAIL_HOST_PASSWORD = my_settings.EMAIL['EMAIL_HOST_PASSWORD']
+
+LOGIN_URL = 'https://daechinelearning.netlify.app/templates/login.html'
