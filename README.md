@@ -1,30 +1,4 @@
 # DaechineLearning
-<dir>해야될것
-<p>1.requirement 설치
-<p>2.my_setting.py 만들기(manage.py와 같은 라인)
-<p>3.migrate
-<p>4.settings.py에서 token 시간 수정
-<p>5.runserver
-<p>
-<p>
-<p>user
-<p>회원가입 수정시
-<p>is_admin(바뀌면 안됨), username,email(유니크값 고정)
-<p>
-<p>
-<p>articles
-<p>1시간마다 토큰 바꾸기
-<p>
-<p>
-<p>Emoticon
-<p>1. Get 나누는 방식으로 api사용 줄이기
-<p>2. postman 정리
-<p>3. 이모티콘만 사용도 가능하게
-<p>
-<p>
-<p>
-<p>
-<p>
 
 # 프로젝트 개요
     본 프로젝트에서는 사용자가 음악을 추천할 수 있고 소개된 음악을 감상하며 게시글에 머문 시간을 통해 장르 선호도를 예상하고 그에 맞는 음악을 추천해줄 수 있습니다.
