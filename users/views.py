@@ -11,6 +11,7 @@ from django.http import HttpResponseRedirect
 from rest_framework.permissions import AllowAny
 from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
 from rest_framework import permissions
+from datetime import datetime, timedelta
 
 
 class ConfirmEmailView(APIView):
@@ -51,8 +52,6 @@ class SoundAI(APIView):
             data = Recognizer.recognize_google(audio, language="ko")
         except:
             data=""
-
-        print(data)  # 안녕 출력
         return Response({"message":data}, status=status.HTTP_200_OK)
 
 class UserActiveArticleView(APIView):
@@ -67,11 +66,14 @@ class UserActiveArticleView(APIView):
         
 #유사한 사람
 def update_data():
-    users=UserActiveArticle.objects.filter(listen_rate__gt=0.1,created_at__range=["2023-05-26","2023-05-27"]).values_list("user")
+    today=datetime.today()
+    str_today=today.strftime("%Y-%m-%d")
+    yesterday = datetime.today() - timedelta(1)
+    str_yesterday=yesterday.strftime("%Y-%m-%d")
+    users=UserActiveArticle.objects.filter(listen_rate__gt=0.1,created_at__range=[str_yesterday,str_today]).values_list("user")
     users=list(set(users))
     user_genre={1: {'acoustic': 0.1, 'afrobeat': 10, 'alt-rock': 10}, 3: {'acoustic': 12, 'afrobeat': 13, 'alt-rock': 11}}
     for user in users:
-        print(user[0])
         datas=UserActiveArticle.objects.filter(user=user[0],listen_rate__gt=0.1,created_at__range=["2023-05-26","2023-05-27"]).order_by("user")
 
         genre_dic=user_genre.get(user[0],{})
@@ -82,14 +84,11 @@ def update_data():
         #추가데이터
         for data in datas:
             genres=MusicGenreTable.objects.filter(music=data.article)
-            print(genres)
             for genre in genres:
-                print(genre.genre.name)
                 genre_dic[genre.genre.name]=genre_dic.get(genre.genre.name,0)+1
                 pass
         if genre_dic!={}:
             user_genre[user[0]]=genre_dic
-    print(user_genre)
 
 def combinations(iterable, r):
     pool = tuple(iterable)
@@ -143,4 +142,4 @@ def make_similar_user(user_genre,limit_n):
             similar_users[user1]+=[user2]
         if len(similar_users[user2])<limit_n:
             similar_users[user2]+=[user1]
-    print(similar_users)
+    #similar_users 유사한 사람

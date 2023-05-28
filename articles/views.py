@@ -121,26 +121,17 @@ class MusicSearchApiDetail(APIView):
 class SaveMusic(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     def post(self, request, format=None):
-        # print('===========1===========================================')
-        print(request.data)
-        # print('===========2===========================================')
         user = request.data.get('user', None)
         name = request.data.get('name', None)
         artist = request.data.get('artist', None)
         album = request.data.get('album', None)
         music_id = request.data.get('music_id', None)
         images = request.data.get('images', None)
-        # print("========확인=========",user)
         # Music 모델에 데이터 저장
         music = Music.objects.create(user=User.objects.get(id=user), name=name, artist=artist, album=album, music_id=music_id, images=images)
-        print('확인 1',music)
         music.save()
-        print('확인 2',music.pk)
         temp = Music.objects.get(id=music.pk, name=name, artist=artist, album=album, music_id=music_id, images=images)
-        print('확인 3', temp)
-
         serializer = MusicGetSerializer(temp)
-        print('확인 4',serializer)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 # music id로 검색
@@ -214,19 +205,13 @@ class ArticleView(APIView):# serializer 수정? 꾸미기?
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        print("=================================")
-        print(request.data)
-        print("=================================")
         if 'genre' in request.data:
-            print("if문 확인", )
             serializer = ArticleCreateSerializer(data=request.data, context={"genre":request.data.getlist("genre")})
         else:
             serializer = ArticleCreateSerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save(user=request.user)
-            # print('저장 확인용', serializer.data['id'])
-            # print('타입 확인용', type(serializer.data['id']))
             article = Article.objects.get(id=serializer.data['id'])
             for a in request.data.getlist("genre"):
                 genre_get = Genre.objects.get(id=int(a))
@@ -360,8 +345,6 @@ class MusicGenreTableView(APIView):
             return Response({"message": "권한이 없습니다!"}, status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, article_id):
-        # 제거할 장르id를 리스트로 받아서?
-        print(request.data)
         article = get_object_or_404(Article, id=article_id, db_status=1)
         del_genres = request.data['del_genres']
         if request.user == article.writer:
